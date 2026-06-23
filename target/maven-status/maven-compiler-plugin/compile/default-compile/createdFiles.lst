@@ -1,0 +1,4 @@
+com\arsw\actividad\EventController.class
+com\arsw\actividad\EventPublisher.class
+com\arsw\actividad\ARSWApplication.class
+com\arsw\actividad\EventConsumer.class
