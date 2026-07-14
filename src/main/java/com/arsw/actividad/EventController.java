@@ -1,17 +1,20 @@
 package com.arsw.actividad;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class EventController {
     
     private final EventPublisher publisher;
     private final EventConsumer consumer;
+
+    public EventController(EventPublisher publisher, EventConsumer consumer) {
+        this.publisher = publisher;
+        this.consumer = consumer;
+    }
     
     @PostMapping("/transferencia")
     public Map<String, String> crearTransferencia(@RequestBody Map<String, Object> data) {

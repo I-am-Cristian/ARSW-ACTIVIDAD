@@ -1,21 +1,24 @@
 package com.arsw.actividad;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class EventPublisher {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(EventPublisher.class);
     private final StringRedisTemplate redisTemplate;
     private static final String STREAM = "banco.transferencias";
+
+    public EventPublisher(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
     
     public void publicarTransferencia(Double monto, String desde, String hacia) {
         String eventId = "evt-" + UUID.randomUUID().toString().substring(0, 8);

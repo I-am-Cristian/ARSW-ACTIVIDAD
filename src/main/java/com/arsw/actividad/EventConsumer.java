@@ -1,10 +1,10 @@
 package com.arsw.actividad;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.annotation.PostConstruct;
 import org.springframework.data.redis.connection.stream.*;
 import java.time.Duration;
@@ -12,18 +12,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class EventConsumer {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(EventConsumer.class);
     private final StringRedisTemplate redisTemplate;
     private static final String STREAM = "banco.transferencias";
     private static final String[] GRUPOS = {"fraude", "notificaciones", "auditoria"};
     private final Random random = new Random();
+
+    public EventConsumer(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
     
     @PostConstruct
     public void init() {
+        // XGROUP necesita que el stream exista. Este registro solo lo inicializa.
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(STREAM))) {
+            redisTemplate.opsForStream().add(STREAM, Map.of("eventType", "StreamCreado"));
+        }
         for (String grupo : GRUPOS) {
             try {
                 String grupoName = grupo + "-group";
@@ -54,6 +61,9 @@ public class EventConsumer {
                         offset
                     );
                 
+                if (records == null) {
+                    continue;
+                }
                 for (MapRecord<String, Object, Object> record : records) {
                     Map<Object, Object> data = record.getValue();
                     String eventId = (String) data.get("eventId");
