@@ -19,11 +19,14 @@ mvn spring-boot:run
 En otra terminal, crear una transferencia:
 
 ```bash
-curl -X POST http://localhost:8080/api/transferencia -H "Content-Type: application/json" -d "{\"monto\":150000,\"desde\":\"cta-101\",\"hacia\":\"cta-202\"}"
+curl -X POST http://localhost:8081/api/transferencia -H "Content-Type: application/json" -d "{\"monto\":150000,\"desde\":\"cta-101\",\"hacia\":\"cta-202\"}"
 ```
+
+![alt text](image.png)
 
 Ver la cantidad de eventos pendientes en los logs:
 
 ```bash
-curl http://localhost:8080/api/pendientes
+curl http://localhost:8081/api/pendientes
 ```
+
