@@ -1,13 +1,17 @@
 package com.arsw.actividad;
 
-import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class EventController {
-    
+
     private final EventPublisher publisher;
     private final EventConsumer consumer;
 
@@ -15,27 +19,29 @@ public class EventController {
         this.publisher = publisher;
         this.consumer = consumer;
     }
-    
+
     @PostMapping("/transferencia")
     public Map<String, String> crearTransferencia(@RequestBody Map<String, Object> data) {
-        Double monto = Double.valueOf(data.get("monto").toString());
-        String desde = (String) data.get("desde");
-        String hacia = (String) data.get("hacia");
-        
-        publisher.publicarTransferencia(monto, desde, hacia);
-        
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", "Transferencia publicada");
-        return response;
+        String eventId = publisher.publicarTransferencia(
+                Double.valueOf(data.get("monto").toString()),
+                data.get("desde").toString(),
+                data.get("hacia").toString());
+        return Map.of("status", "success", "message", "Transferencia publicada", "eventId", eventId);
     }
-    
+
     @GetMapping("/pendientes")
-    public Map<String, String> verPendientes() {
-        consumer.mostrarPendientes();
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "ok");
-        response.put("message", "Ver logs para detalles de pendientes");
-        return response;
+    public Map<String, Long> verPendientes() {
+        return consumer.obtenerPendientes();
+    }
+
+    @PostMapping("/reprocesar/auditoria")
+    public Map<String, Object> reprocesarAuditoria() {
+        int cantidad = consumer.reprocesarAuditoria();
+        return Map.of("status", "ok", "eventosReprocesados", cantidad);
+    }
+
+    @GetMapping("/auditoria")
+    public Map<Object, Object> verAuditoria() {
+        return consumer.obtenerAuditoria();
     }
 }

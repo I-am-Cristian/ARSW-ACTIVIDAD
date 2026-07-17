@@ -20,12 +20,12 @@ public class EventPublisher {
         this.redisTemplate = redisTemplate;
     }
     
-    public void publicarTransferencia(Double monto, String desde, String hacia) {
+    public String publicarTransferencia(Double monto, String desde, String hacia) {
         String eventId = "evt-" + UUID.randomUUID().toString().substring(0, 8);
         String transferId = "tr-" + UUID.randomUUID().toString().substring(0, 6);
         
         Map<String, String> evento = new HashMap<>();
-        evento.put("eventType", "TransferenciaCreada");
+        evento.put("eventType", "TransferenciaCreada.v1");
         evento.put("eventId", eventId);
         evento.put("transferId", transferId);
         evento.put("from", desde);
@@ -36,5 +36,6 @@ public class EventPublisher {
         
         var recordId = redisTemplate.opsForStream().add(STREAM, evento);
         log.info("Evento publicado: {} | ID Redis: {}", eventId, recordId.getValue());
+        return eventId;
     }
 }

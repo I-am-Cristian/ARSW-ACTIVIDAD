@@ -5,6 +5,9 @@ spring:
       port: 6379
       timeout: 5000
 
+server:
+  port: 8081
+
 logging:
   level:
     com.arsw: DEBUG
